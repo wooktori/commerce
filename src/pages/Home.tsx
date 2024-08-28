@@ -1,8 +1,9 @@
-import { useAuth } from "@/context/AuthContext";
-import React from "react";
+import Header from "@/components/header";
 
 export default function Home() {
-  const { user, isSeller } = useAuth();
-  console.log(user, isSeller);
-  return <div>Home</div>;
+  return (
+    <div>
+      <Header />
+    </div>
+  );
 }
