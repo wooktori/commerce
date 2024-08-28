@@ -4,8 +4,8 @@ import Home from "./pages/Home";
 import SignIn from "./pages/SignIn";
 import Login from "./pages/Login";
 import Mypage from "./pages/Mypage";
-import ProductRegistration from "./pages/ProductRegistration";
 import { AuthProvider } from "./context/AuthContext";
+import CreateProduct from "./pages/CreateProduct";
 
 function App() {
   return (
@@ -16,10 +16,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/login" element={<Login />} />
           <Route path="/mypage" element={<Mypage />} />
-          <Route
-            path="/product-registration"
-            element={<ProductRegistration />}
-          />
+          <Route path="/product-registration" element={<CreateProduct />} />
         </Routes>
       </Router>
     </AuthProvider>

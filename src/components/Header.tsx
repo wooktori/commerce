@@ -20,7 +20,7 @@ export default function Header() {
     <div>
       {user ? (
         <div>
-          <Button>마이페이지</Button>
+          <Button onClick={() => navigate("/mypage")}>마이페이지</Button>
           <Button onClick={logoutClick}>로그아웃</Button>
         </div>
       ) : (

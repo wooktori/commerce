@@ -39,8 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  //const value: AuthContextType = { user, setUser };
-
   return (
     <AuthContext.Provider value={{ user, setUser, isSeller }}>
       {!isLoading && children}
