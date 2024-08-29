@@ -25,8 +25,8 @@ export default function Mypage() {
     where("sellerId", "==", user?.userId)
   );
 
-  const editClick = () => {
-    navigate("/");
+  const editClick = (product: ProductData) => {
+    navigate(`/product/${product.productId}/edit`);
   };
 
   const deleteClick = async (product: ProductData) => {
@@ -66,7 +66,7 @@ export default function Mypage() {
       }
     };
     getProducts();
-  }, [q]);
+  }, []);
 
   return (
     <div>
@@ -90,7 +90,7 @@ export default function Mypage() {
               )}
               <h3>{product.productName}</h3>
               <Button
-                onClick={editClick}
+                onClick={() => editClick(product)}
                 className="bg-green-400 hover:bg-green-700"
               >
                 수정

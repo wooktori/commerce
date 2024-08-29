@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Mypage from "./pages/Mypage";
 import { AuthProvider } from "./context/AuthContext";
 import CreateProduct from "./pages/CreateProduct";
+import EditProduct from "./pages/EditProduct";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/product-registration" element={<CreateProduct />} />
+          <Route path="/product/:productId/edit" element={<EditProduct />} />
         </Routes>
       </Router>
     </AuthProvider>

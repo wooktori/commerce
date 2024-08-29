@@ -57,7 +57,7 @@ export default function CreateProduct() {
     };
 
     fetchProduct();
-  }, [productId, form]);
+  }, [productId]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
