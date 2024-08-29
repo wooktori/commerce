@@ -27,6 +27,7 @@ export default function CreateProduct() {
   const imgRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { productId } = useParams<{ productId: string }>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<ProductData>({
     resolver: zodResolver(productSchema),
@@ -56,7 +57,7 @@ export default function CreateProduct() {
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId, form]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -93,6 +94,7 @@ export default function CreateProduct() {
     console.log(newProductId);
 
     try {
+      setIsLoading(true);
       const urls: string[] = [];
       const paths: string[] = [];
 
@@ -124,134 +126,142 @@ export default function CreateProduct() {
       navigate("/mypage");
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div>
-      <h2 className="text-3xl font-bold">제품 등록</h2>
-      <hr className="my-3" />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleUpload)}>
-          <FormField
-            control={form.control}
-            name="productName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="mr-3">이름</FormLabel>
-                <FormControl>
-                  <input placeholder="name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="productPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="mr-3">가격</FormLabel>
-                <FormControl>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(+e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="productQuantity"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="mr-3">수량</FormLabel>
-                <FormControl>
-                  <input
-                    type="number"
-                    placeholder="0"
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(+e.target.value)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="productCategory"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="mr-3">카테고리</FormLabel>
-                <FormControl>
-                  <select {...field}>
-                    <option value="">카테고리를 선택하세요</option>
-                    <option value="식품">식품</option>
-                    <option value="가전제품">가전제품</option>
-                    <option value="의류">의류</option>
-                  </select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="productDescription"
-            render={({ field }) => (
-              <FormItem className="mb-5">
-                <FormLabel className="mr-3">제품설명</FormLabel>
-                <FormControl>
-                  <input placeholder="description" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      {isLoading ? (
+        <div>업로드 중...</div>
+      ) : (
+        <div>
+          <h2 className="text-3xl font-bold">제품 등록</h2>
+          <hr className="my-3" />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleUpload)}>
+              <FormField
+                control={form.control}
+                name="productName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="mr-3">이름</FormLabel>
+                    <FormControl>
+                      <input placeholder="name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="productPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="mr-3">가격</FormLabel>
+                    <FormControl>
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(+e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="productQuantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="mr-3">수량</FormLabel>
+                    <FormControl>
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(+e.target.value)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="productCategory"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="mr-3">카테고리</FormLabel>
+                    <FormControl>
+                      <select {...field}>
+                        <option value="">카테고리를 선택하세요</option>
+                        <option value="식품">식품</option>
+                        <option value="가전제품">가전제품</option>
+                        <option value="의류">의류</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="productDescription"
+                render={({ field }) => (
+                  <FormItem className="mb-5">
+                    <FormLabel className="mr-3">제품설명</FormLabel>
+                    <FormControl>
+                      <input placeholder="description" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <label
-            htmlFor="image"
-            className="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-          >
-            이미지 추가
-          </label>
-          <input
-            type="file"
-            id="image"
-            multiple
-            onChange={handleFileSelect}
-            ref={imgRef}
-            className="hidden"
-          />
-          {selectedFiles.length > 0 ? (
-            <div className="flex">
-              {imgPaths.map((img, index) => (
-                <div key={index} className="relative inline-block">
-                  <img
-                    src={img}
-                    alt={`preview-${index}`}
-                    className="w-52 h-52"
-                  />
-                  <Button
-                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full"
-                    onClick={() => handleImageDelete(index)}
-                  >
-                    X
-                  </Button>
+              <label
+                htmlFor="image"
+                className="cursor-pointer bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+              >
+                이미지 추가
+              </label>
+              <input
+                type="file"
+                id="image"
+                multiple
+                onChange={handleFileSelect}
+                ref={imgRef}
+                className="hidden"
+              />
+              {selectedFiles.length > 0 ? (
+                <div className="flex">
+                  {imgPaths.map((img, index) => (
+                    <div key={index} className="relative inline-block">
+                      <img
+                        src={img}
+                        alt={`preview-${index}`}
+                        className="w-52 h-52"
+                      />
+                      <Button
+                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full"
+                        onClick={() => handleImageDelete(index)}
+                      >
+                        X
+                      </Button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-red-500 my-3">이미지를 추가 해주세요</div>
-          )}
-          <Button type="submit">업로드</Button>
-        </form>
-      </Form>
+              ) : (
+                <div className="text-red-500 my-3">이미지를 추가 해주세요</div>
+              )}
+              <Button type="submit">업로드</Button>
+            </form>
+          </Form>
+        </div>
+      )}
     </div>
   );
 }

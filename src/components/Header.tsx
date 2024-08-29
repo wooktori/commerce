@@ -1,5 +1,4 @@
 import { useAuth } from "@/context/AuthContext";
-import React from "react";
 import { Button } from "./ui/button";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase";
@@ -17,15 +16,19 @@ export default function Header() {
     }
   };
   return (
-    <div>
+    <div className="flex justify-end">
       {user ? (
         <div>
-          <Button onClick={() => navigate("/mypage")}>마이페이지</Button>
+          <Button className="mr-3" onClick={() => navigate("/mypage")}>
+            마이페이지
+          </Button>
           <Button onClick={logoutClick}>로그아웃</Button>
         </div>
       ) : (
         <div>
-          <Button onClick={() => navigate("/login")}>로그인</Button>
+          <Button className="mr-3" onClick={() => navigate("/login")}>
+            로그인
+          </Button>
           <Button onClick={() => navigate("/signin")}>회원가입</Button>
         </div>
       )}

@@ -66,11 +66,12 @@ export default function Mypage() {
       }
     };
     getProducts();
-  }, []);
+  }, [q]);
 
   return (
     <div>
-      <div className="flex justify-end  mx-auto container">
+      <div className="flex justify-between  mx-auto container">
+        <Button onClick={() => navigate("/")}>&larr;</Button>
         <Button onClick={() => navigate("/product-registration")}>
           상품등록
         </Button>
