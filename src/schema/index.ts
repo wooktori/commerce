@@ -48,5 +48,6 @@ export const productSchema = z.object({
   productQuantity: z.number(),
   productDescription: z.string(),
   productCategory: z.string(),
-  productImage: z.string(),
+  productImageUrls: z.array(z.string()),
+  productImagePaths: z.array(z.string()),
 });

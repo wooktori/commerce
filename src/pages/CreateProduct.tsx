@@ -10,13 +10,13 @@ import {
 import { auth, db, storage } from "@/firebase";
 import { productSchema } from "@/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 export default function CreateProduct() {
@@ -26,6 +26,8 @@ export default function CreateProduct() {
   const [imgPaths, setImgPaths] = useState<string[]>([]);
   const imgRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { productId } = useParams<{ productId: string }>();
+
   const form = useForm<ProductData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -36,18 +38,33 @@ export default function CreateProduct() {
       productQuantity: 0,
       productDescription: "",
       productCategory: "",
-      productImage: "",
+      productImageUrls: [],
+      productImagePaths: [],
     },
   });
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (productId) {
+        const productDoc = await getDoc(doc(db, "products", productId));
+        if (productDoc.exists()) {
+          const productData = productDoc.data();
+          form.reset(productData as ProductData);
+          setImgPaths(productData.productImageUrls || []);
+        }
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const files = Array.from(event.target.files);
       setSelectedFiles(files);
 
-      // 이미지 미리보기 URL 생성
-      const previewUrls = files.map((file) => URL.createObjectURL(file));
-      setImgPaths(previewUrls);
+      const fileUrls = files.map((file) => URL.createObjectURL(file));
+      setImgPaths(fileUrls);
     } else {
       console.error("No file selected");
     }
@@ -72,27 +89,37 @@ export default function CreateProduct() {
       productDescription,
       productCategory,
     } = data;
-    const productId = uuidv4();
-    console.log(productId);
+    const newProductId = productId || uuidv4();
+    console.log(newProductId);
 
     try {
       const urls: string[] = [];
-      for (const file of selectedFiles) {
-        const imageRef = ref(storage, `${auth.currentUser?.uid}/${file.name}`);
-        const image = await uploadBytes(imageRef, file);
-        const imageUrl = await getDownloadURL(image.ref);
-        urls.push(imageUrl);
+      const paths: string[] = [];
+
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const id = Date.now();
+          const imageRef = ref(
+            storage,
+            `${auth.currentUser?.uid}/${newProductId}-${id}`
+          );
+          const image = await uploadBytes(imageRef, file);
+          const imageUrl = await getDownloadURL(image.ref);
+          urls.push(imageUrl);
+          paths.push(imageRef.fullPath);
+        }
       }
       // 상품 정보 저장
-      await setDoc(doc(db, "products", productId), {
+      await setDoc(doc(db, "products", newProductId), {
         sellerId: user?.userId,
-        productId: productId,
+        productId: newProductId,
         productName,
         productPrice,
         productQuantity,
         productDescription,
         productCategory,
-        productImage: imgPaths,
+        productImageUrls: urls,
+        productImagePaths: paths,
       });
       navigate("/mypage");
     } catch (error) {

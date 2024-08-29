@@ -1,8 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { db } from "@/firebase";
+import { db, storage } from "@/firebase";
 import { productSchema } from "@/schema";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { deleteObject, ref } from "firebase/storage";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -16,6 +24,31 @@ export default function Mypage() {
     collection(db, "products"),
     where("sellerId", "==", user?.userId)
   );
+
+  const editClick = () => {
+    navigate("/");
+  };
+
+  const deleteClick = async (product: ProductData) => {
+    if (window.confirm("정말로 삭제하시겠습니까?")) {
+      try {
+        const productRef = doc(db, "products", product.productId);
+
+        if (product.productImagePaths && product.productImagePaths.length > 0) {
+          for (const path of product.productImagePaths) {
+            const imgRef = ref(storage, path);
+            await deleteObject(imgRef);
+          }
+        }
+        await deleteDoc(productRef);
+        setProducts(products.filter((p) => p.productId !== product.productId));
+      } catch (error) {
+        console.log(error);
+        alert("제품 삭제 중 오류가 발생했습니다.");
+      }
+      console.log(product);
+    }
+  };
 
   useEffect(() => {
     const getProducts = async () => {
@@ -47,16 +80,26 @@ export default function Mypage() {
         {products.length > 0 ? (
           products.map((product) => (
             <div key={product.productId}>
-              {product.productImage && (
+              {product.productImageUrls && (
                 <img
-                  src={product.productImage[0]}
+                  src={product.productImageUrls[0]}
                   alt={product.productName}
                   className="w-30 h-52"
                 />
               )}
               <h3>{product.productName}</h3>
-              <Button className="bg-green-400 hover:bg-green-700">수정</Button>
-              <Button className="bg-red-400 hover:bg-red-700">삭제</Button>
+              <Button
+                onClick={editClick}
+                className="bg-green-400 hover:bg-green-700"
+              >
+                수정
+              </Button>
+              <Button
+                onClick={() => deleteClick(product)}
+                className="bg-red-400 hover:bg-red-700"
+              >
+                삭제
+              </Button>
             </div>
           ))
         ) : (
