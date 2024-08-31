@@ -11,6 +11,7 @@ interface AuthContextType {
   user: ExtendedUser | null;
   setUser: (user: ExtendedUser | null) => void;
   isSeller: boolean;
+  nickname: string;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -19,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<ExtendedUser | null>(null);
   const [isSeller, setIsSeller] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [nickname, setNickname] = useState("");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -28,6 +30,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const userData = userDoc.data();
           setUser({ ...user, userId: userData.userId });
           setIsSeller(userData.isSeller);
+          setNickname(userData.nickname);
         }
       } else {
         setUser(null);
@@ -40,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isSeller }}>
+    <AuthContext.Provider value={{ user, setUser, isSeller, nickname }}>
       {!isLoading && children}
     </AuthContext.Provider>
   );

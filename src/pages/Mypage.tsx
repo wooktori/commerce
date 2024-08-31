@@ -85,7 +85,8 @@ export default function Mypage() {
                 <img
                   src={product.productImageUrls[0]}
                   alt={product.productName}
-                  className="w-30 h-52"
+                  className="w-30 h-52 hover:cursor-pointer"
+                  onClick={() => navigate(`/product/${product.productId}`)}
                 />
               )}
               <h3>{product.productName}</h3>

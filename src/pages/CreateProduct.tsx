@@ -62,10 +62,10 @@ export default function CreateProduct() {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const files = Array.from(event.target.files);
-      setSelectedFiles(files);
+      setSelectedFiles((prev) => [...prev, ...files]);
 
       const fileUrls = files.map((file) => URL.createObjectURL(file));
-      setImgPaths(fileUrls);
+      setImgPaths((prev) => [...prev, ...fileUrls]);
     } else {
       console.error("No file selected");
     }
@@ -83,6 +83,10 @@ export default function CreateProduct() {
   };
 
   const handleUpload = async (data: ProductData) => {
+    if (selectedFiles.length === 0) {
+      alert("최소한 한 개의 이미지를 선택해야 합니다.");
+      return;
+    }
     const {
       productName,
       productPrice,

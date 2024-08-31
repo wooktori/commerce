@@ -5,7 +5,7 @@ import { auth } from "@/firebase";
 import { useNavigate } from "react-router-dom";
 
 export default function Header() {
-  const { user, isSeller } = useAuth();
+  const { user, isSeller, nickname } = useAuth();
   const navigate = useNavigate();
   console.log(user, isSeller);
   const logoutClick = async () => {
@@ -19,6 +19,7 @@ export default function Header() {
     <div className="flex justify-end">
       {user ? (
         <div>
+          <span className="mr-3 font-bold">{nickname}님</span>
           <Button className="mr-3" onClick={() => navigate("/mypage")}>
             마이페이지
           </Button>

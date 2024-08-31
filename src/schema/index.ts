@@ -43,11 +43,15 @@ export const loginSchema = z.object({
 export const productSchema = z.object({
   sellerId: z.string(),
   productId: z.string(),
-  productName: z.string(),
-  productPrice: z.number(),
-  productQuantity: z.number(),
-  productDescription: z.string(),
-  productCategory: z.string(),
+  productName: z
+    .string()
+    .min(1, { message: "최소 한자리 이상의 이름이 필요합니다." }),
+  productPrice: z.number().min(1, { message: "금액을 다시 설정해주세요" }),
+  productQuantity: z.number().min(1, { message: "수량을 다시 설정해주세요" }),
+  productDescription: z
+    .string()
+    .min(1, { message: "최소 한자리 이상의 설명이 필요합니다." }),
+  productCategory: z.string().min(1, { message: "카테고리를 선택해주세요." }),
   productImageUrls: z.array(z.string()),
   productImagePaths: z.array(z.string()),
 });
