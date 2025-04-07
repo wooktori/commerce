@@ -12,6 +12,10 @@ import { Input } from "../components/ui/input";
 import { z } from "zod";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/firebase";
+import { addDoc, collection } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
 
 const formSchema = z
   .object({
@@ -42,8 +46,25 @@ export default function Signup() {
     },
   });
 
-  const onValid = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+  const onValid = async (data: z.infer<typeof formSchema>) => {
+    const { email, password, nickname, isSeller } = data;
+    const id = uuidv4();
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      await addDoc(collection(db, "users"), {
+        id,
+        nickname,
+        isSeller,
+        email,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+    } catch (e) {
+      // 에러처리 나중에
+      alert("회원가입 도중 오류가 발생했습니다..");
+      console.error(e);
+    }
   };
 
   return (
