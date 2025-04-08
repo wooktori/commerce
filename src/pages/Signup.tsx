@@ -16,6 +16,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { v4 as uuidv4 } from "uuid";
+import { useNavigate } from "react-router";
 
 const formSchema = z
   .object({
@@ -35,6 +36,7 @@ const formSchema = z
   });
 
 export default function Signup() {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,6 +62,7 @@ export default function Signup() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       });
+      navigate("/login");
     } catch (e) {
       // 에러처리 나중에
       alert("회원가입 도중 오류가 발생했습니다..");

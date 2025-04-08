@@ -4,7 +4,7 @@ export default function Header() {
   return (
     <div className="flex justify-between mx-10 my-5">
       <div className="flex gap-4">
-        <span>로그인</span>
+        <Link to="/login">로그인</Link>
         <Link to="/signup">회원가입</Link>
         <span>주문조회</span>
         <span>장바구니</span>
