@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { auth } from "@/firebase";
+import { useMutation } from "@tanstack/react-query";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -20,14 +21,18 @@ interface IForm {
 export default function Login() {
   const navigate = useNavigate();
   const form = useForm<IForm>({ defaultValues: { email: "", password: "" } });
+  const loginMutation = useMutation({
+    mutationFn: async (data: IForm) => {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+    },
+    onSuccess: () => navigate("/"),
+    onError: (error) => {
+      alert("로그인에 실패하였습니다.");
+      console.error(error);
+    },
+  });
   const onValid = async (data: IForm) => {
-    const info = await signInWithEmailAndPassword(
-      auth,
-      data.email,
-      data.password
-    );
-    console.log(info);
-    navigate("/");
+    loginMutation.mutate(data);
   };
   return (
     <div className="flex flex-col items-center">

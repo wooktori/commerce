@@ -14,9 +14,9 @@ import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "@/firebase";
-import { addDoc, collection } from "firebase/firestore";
-import { v4 as uuidv4 } from "uuid";
+import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router";
+import { useMutation } from "@tanstack/react-query";
 
 const formSchema = z
   .object({
@@ -48,13 +48,18 @@ export default function Signup() {
     },
   });
 
-  const onValid = async (data: z.infer<typeof formSchema>) => {
-    const { email, password, nickname, isSeller } = data;
-    const id = uuidv4();
+  const signupMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof formSchema>) => {
+      const { email, password, nickname, isSeller } = data;
 
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      await addDoc(collection(db, "users"), {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const id = userCredential.user.uid;
+
+      await setDoc(doc(db, "users", id), {
         id,
         nickname,
         isSeller,
@@ -62,12 +67,18 @@ export default function Signup() {
         createdAt: Date.now(),
         updatedAt: Date.now(),
       });
+    },
+    onSuccess: () => {
       navigate("/login");
-    } catch (e) {
-      // 에러처리 나중에
-      alert("회원가입 도중 오류가 발생했습니다..");
-      console.error(e);
-    }
+    },
+    onError: (error) => {
+      alert("회원가입 도중 오류가 발생했습니다.");
+      console.error(error);
+    },
+  });
+
+  const onValid = async (data: z.infer<typeof formSchema>) => {
+    signupMutation.mutate(data);
   };
 
   return (
