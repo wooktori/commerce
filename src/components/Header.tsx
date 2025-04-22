@@ -1,14 +1,17 @@
 import { userState } from "@/atoms/userAtom";
 import { auth } from "@/firebase";
+import { useQueryClient } from "@tanstack/react-query";
 import { signOut } from "firebase/auth";
 import { Link } from "react-router";
 import { useRecoilState } from "recoil";
 
 export default function Header() {
   const [user, setUser] = useRecoilState(userState);
+  const queryClient = useQueryClient();
   const logoutClick = () => {
     signOut(auth);
     setUser(null);
+    queryClient.clear();
     localStorage.removeItem("token");
   };
   return (
@@ -16,7 +19,9 @@ export default function Header() {
       <div className="flex gap-4">
         {user ? (
           <>
-            <div onClick={logoutClick}>로그아웃</div>
+            <div onClick={logoutClick} className="hover:cursor-pointer">
+              로그아웃
+            </div>
           </>
         ) : (
           <>
