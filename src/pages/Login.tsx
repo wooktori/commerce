@@ -1,3 +1,4 @@
+import { userState } from "@/atoms/userAtom";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -7,11 +8,13 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { auth } from "@/firebase";
+import { auth, db } from "@/firebase";
 import { useMutation } from "@tanstack/react-query";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
+import { useSetRecoilState } from "recoil";
 
 interface IForm {
   email: string;
@@ -19,11 +22,33 @@ interface IForm {
 }
 
 export default function Login() {
+  const setUser = useSetRecoilState(userState);
   const navigate = useNavigate();
   const form = useForm<IForm>({ defaultValues: { email: "", password: "" } });
   const loginMutation = useMutation({
     mutationFn: async (data: IForm) => {
-      await signInWithEmailAndPassword(auth, data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const id = userCredential.user.uid;
+
+      const userDoc = await getDoc(doc(db, "users", id));
+      if (!userDoc.exists()) {
+        throw new Error("사용자 정보가 없습니다.");
+      }
+
+      const token = await userCredential.user.getIdToken();
+
+      localStorage.setItem("token", token);
+
+      setUser({
+        id,
+        email: userDoc.data().email,
+        nickname: userDoc.data().nickname,
+        isSeller: userDoc.data().isSeller,
+      });
     },
     onSuccess: () => navigate("/"),
     onError: (error) => {

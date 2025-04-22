@@ -12,9 +12,9 @@ import { Input } from "../components/ui/input";
 import { z } from "zod";
 import { RadioGroupItem, RadioGroup } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, signOut } from "firebase/auth";
 import { auth, db } from "@/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
 
@@ -64,9 +64,11 @@ export default function Signup() {
         nickname,
         isSeller,
         email,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
+
+      await signOut(auth);
     },
     onSuccess: () => {
       navigate("/login");
