@@ -12,6 +12,7 @@ import { auth, db } from "@/firebase";
 import { useMutation } from "@tanstack/react-query";
 import {
   GithubAuthProvider,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
@@ -80,6 +81,22 @@ export default function Login() {
       console.error(error);
     }
   };
+  const googleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const data = await signInWithPopup(auth, provider);
+      setUser({
+        id: data.user.uid,
+        email: data.user.email,
+        nickname: data.user.displayName!,
+        isSeller: false,
+      });
+      console.log(data);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <div className="flex flex-col items-center">
       <h3>로그인</h3>
@@ -112,11 +129,13 @@ export default function Login() {
           <Button type="submit">로그인</Button>
         </form>
       </Form>
-      <div className="hover:cursor-pointer">카카오로 로그인</div>
+      <div className="hover:cursor-pointer" onClick={googleLogin}>
+        구글로 로그인
+      </div>
       <div className="hover:cursor-pointer" onClick={githubLogin}>
         깃허브로 로그인
       </div>
-      <div className="hover:cursor-pointer">구글로 로그인</div>
+      <div className="hover:cursor-pointer">카카오로 로그인</div>
     </div>
   );
 }
