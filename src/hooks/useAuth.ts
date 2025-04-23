@@ -36,12 +36,12 @@ export function useAuth() {
     async queryFn() {
       if (!authUser?.uid) return null;
 
-      console.log("Firestore 조회 시도:", authUser.uid); // 디버깅 로그
+      //console.log("Firestore 조회 시도:", authUser.uid); // 디버깅 로그
 
       const userDoc = await getDoc(doc(db, "users", authUser.uid));
       const data = userDoc.data();
 
-      console.log("Firestore 조회 결과:", data); // 디버깅 로그
+      //console.log("Firestore 조회 결과:", data); // 디버깅 로그
 
       if (!userDoc.exists()) {
         throw new Error("User document not found");
@@ -56,7 +56,7 @@ export function useAuth() {
     if (!authUser?.uid) return;
 
     const unsubscribe = onSnapshot(doc(db, "users", authUser.uid), (doc) => {
-      console.log("실시간 업데이트:", doc.data()); // 디버깅 로그
+      //console.log("실시간 업데이트:", doc.data()); // 디버깅 로그
       queryClient.setQueryData(["userData", authUser.uid], doc.data());
     });
 

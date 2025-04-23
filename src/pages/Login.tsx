@@ -20,6 +20,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useSetRecoilState } from "recoil";
+import { FcGoogle } from "react-icons/fc";
+import { RiGithubFill, RiKakaoTalkFill } from "react-icons/ri";
 
 interface IForm {
   email: string;
@@ -81,6 +83,7 @@ export default function Login() {
       console.error(error);
     }
   };
+
   const googleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
@@ -97,6 +100,7 @@ export default function Login() {
       console.error(error);
     }
   };
+  const kakaoLogin = async () => {};
   return (
     <div className="flex flex-col items-center">
       <h3>로그인</h3>
@@ -129,13 +133,30 @@ export default function Login() {
           <Button type="submit">로그인</Button>
         </form>
       </Form>
-      <div className="hover:cursor-pointer" onClick={googleLogin}>
-        구글로 로그인
+      <div>
+        <Button
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
+          onClick={googleLogin}
+        >
+          <FcGoogle size={20} />
+          구글 계정으로 로그인
+        </Button>
+
+        <Button
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
+          onClick={githubLogin}
+        >
+          <RiGithubFill size={20} />
+          깃허브 계정으로 로그인
+        </Button>
+        <Button
+          className="flex w-full items-center justify-center gap-2 rounded-md bg-[#FEE500] text-sm font-medium text-gray-700 transition-colors duration-300 hover:border hover:border-yellow-300 hover:bg-[#FFEB3B]"
+          onClick={kakaoLogin}
+        >
+          <RiKakaoTalkFill size={20} />
+          카카오 계정으로 로그인
+        </Button>
       </div>
-      <div className="hover:cursor-pointer" onClick={githubLogin}>
-        깃허브로 로그인
-      </div>
-      <div className="hover:cursor-pointer">카카오로 로그인</div>
     </div>
   );
 }
