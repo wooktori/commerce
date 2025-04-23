@@ -19,6 +19,7 @@ export default function Header() {
       <div className="flex gap-4">
         {user ? (
           <>
+            <div>{user.nickname}님 환영합니다!</div>
             <div onClick={logoutClick} className="hover:cursor-pointer">
               로그아웃
             </div>

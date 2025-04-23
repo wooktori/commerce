@@ -10,7 +10,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { auth, db } from "@/firebase";
 import { useMutation } from "@tanstack/react-query";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import {
+  GithubAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
@@ -59,6 +63,23 @@ export default function Login() {
   const onValid = async (data: IForm) => {
     loginMutation.mutate(data);
   };
+
+  const githubLogin = async () => {
+    try {
+      const provider = new GithubAuthProvider();
+      const data = await signInWithPopup(auth, provider);
+      setUser({
+        id: data.user.uid,
+        email: data.user.email,
+        nickname: data.user.displayName!,
+        isSeller: false,
+      });
+      console.log(data);
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <div className="flex flex-col items-center">
       <h3>로그인</h3>
@@ -91,6 +112,11 @@ export default function Login() {
           <Button type="submit">로그인</Button>
         </form>
       </Form>
+      <div className="hover:cursor-pointer">카카오로 로그인</div>
+      <div className="hover:cursor-pointer" onClick={githubLogin}>
+        깃허브로 로그인
+      </div>
+      <div className="hover:cursor-pointer">구글로 로그인</div>
     </div>
   );
 }
