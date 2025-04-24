@@ -10,18 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { auth, db } from "@/firebase";
 import { useMutation } from "@tanstack/react-query";
-import {
-  GithubAuthProvider,
-  GoogleAuthProvider,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useSetRecoilState } from "recoil";
 import { FcGoogle } from "react-icons/fc";
 import { RiGithubFill, RiKakaoTalkFill } from "react-icons/ri";
+import { githubLogin, googleLogin, kakaoLogin } from "@/lib/socialLogin";
 
 interface IForm {
   email: string;
@@ -63,44 +59,27 @@ export default function Login() {
       console.error(error);
     },
   });
+
+  const { mutate: googleMutate } = useMutation({
+    mutationFn: () => googleLogin({ setUser, navigate }),
+    onError: (error) => {
+      alert("구글 로그인에 실패하였습니다.");
+      console.error(error);
+    },
+  });
+
+  const { mutate: githubMutate } = useMutation({
+    mutationFn: () => githubLogin({ setUser, navigate }),
+    onError: (error) => {
+      alert("깃허브 로그인에 실패하였습니다.");
+      console.error(error);
+    },
+  });
+
   const onValid = async (data: IForm) => {
     loginMutation.mutate(data);
   };
 
-  const githubLogin = async () => {
-    try {
-      const provider = new GithubAuthProvider();
-      const data = await signInWithPopup(auth, provider);
-      setUser({
-        id: data.user.uid,
-        email: data.user.email,
-        nickname: data.user.displayName!,
-        isSeller: false,
-      });
-      console.log(data);
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const googleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const data = await signInWithPopup(auth, provider);
-      setUser({
-        id: data.user.uid,
-        email: data.user.email,
-        nickname: data.user.displayName!,
-        isSeller: false,
-      });
-      console.log(data);
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  const kakaoLogin = async () => {};
   return (
     <div className="flex flex-col items-center">
       <h3>로그인</h3>
@@ -136,7 +115,7 @@ export default function Login() {
       <div>
         <Button
           className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
-          onClick={googleLogin}
+          onClick={() => googleMutate()}
         >
           <FcGoogle size={20} />
           구글 계정으로 로그인
@@ -144,7 +123,7 @@ export default function Login() {
 
         <Button
           className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
-          onClick={githubLogin}
+          onClick={() => githubMutate()}
         >
           <RiGithubFill size={20} />
           깃허브 계정으로 로그인

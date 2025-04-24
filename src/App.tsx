@@ -3,8 +3,7 @@ import Header from "./components/Header";
 import { useAuth } from "./hooks/useAuth";
 
 function App() {
-  const data = useAuth();
-  console.log(data);
+  useAuth();
   return (
     <>
       <Header />
