@@ -81,10 +81,13 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h3>로그인</h3>
+    <div className="flex flex-col items-center justify-center gap-10 mt-10">
+      <h3 className="font-bold text-3xl">로그인</h3>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onValid)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onValid)}
+          className="space-y-4 flex flex-col w-64"
+        >
           <FormField
             name="email"
             control={form.control}
@@ -112,7 +115,7 @@ export default function Login() {
           <Button type="submit">로그인</Button>
         </form>
       </Form>
-      <div>
+      <div className="flex flex-col gap-2 w-64">
         <Button
           className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
           onClick={() => googleMutate()}
@@ -122,7 +125,7 @@ export default function Login() {
         </Button>
 
         <Button
-          className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
+          className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-300 bg-gray-300 text-sm font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-100"
           onClick={() => githubMutate()}
         >
           <RiGithubFill size={20} />

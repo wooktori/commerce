@@ -84,10 +84,13 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <h3>회원가입</h3>
+    <div className="flex flex-col items-center justify-center gap-10 mt-10">
+      <h3 className="font-bold text-3xl">회원가입</h3>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onValid)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onValid)}
+          className="w-64 space-y-4 flex flex-col"
+        >
           <FormField
             control={form.control}
             name="nickname"
