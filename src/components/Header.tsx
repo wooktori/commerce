@@ -15,7 +15,7 @@ export default function Header() {
     localStorage.removeItem("token");
   };
   return (
-    <div className="flex justify-between mx-10 my-5">
+    <div className="flex justify-between mx-10 mt-5 mb-12">
       <div className="flex gap-4">
         {user ? (
           <>
@@ -34,6 +34,7 @@ export default function Header() {
         <span>주문조회</span>
         <span>장바구니</span>
         <span>마이페이지</span>
+        {user && user.isSeller ? <Link to="/seller">판매자페이지</Link> : null}
       </div>
       <div className="flex gap-4">
         <span>장바구니</span>
