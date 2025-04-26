@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router";
 
 export default function ProductDetail() {
@@ -21,16 +22,18 @@ export default function ProductDetail() {
         <Link to="/seller" className="absolute left-0">
           &larr;
         </Link>
-        <h1 className="text-sm font-bold text-center">상품등록 페이지</h1>
+        <h1 className="text-sm font-bold text-center">상품상세 페이지</h1>
       </div>
-      <div className="flex gap-10">
+      <div className="flex gap-20 max-w-4xl mx-auto items-start">
         <img src={item.productImage[0]} />
-        <div className="space-y-4">
-          <h2>제품명 : {item.productName}</h2>
-          <p>가격: {item.productPrice.toLocaleString()}원</p>
-          <p>재고: {item.productQuantity}개</p>
-          <p>카테고리: {item.productCategory}</p>
-          <p>설명 : {item.productDescription}</p>
+        <div className="space-y-4 ml-20">
+          <h2>{item.productName}</h2>
+          <hr />
+          <p>가격 {item.productPrice.toLocaleString()}원</p>
+          <p>재고 {item.productQuantity}개</p>
+          <p>카테고리 {item.productCategory}</p>
+          <p>설명 {item.productDescription}</p>
+          <Button>수정</Button>
         </div>
       </div>
     </div>
