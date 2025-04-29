@@ -5,6 +5,7 @@ import Signup from "./pages/Signup";
 import Seller from "./pages/Seller";
 import Registration from "./pages/Registration";
 import ProductDetail from "./pages/ProductDetail";
+import ProductEdit from "./pages/ProductEdit";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,11 @@ const router = createBrowserRouter([
         children: [],
       },
       { path: "/seller/:productId", element: <ProductDetail />, children: [] },
+      {
+        path: "/seller/:productId/edit",
+        element: <ProductEdit />,
+        children: [],
+      },
       {
         path: "/registration",
         element: <Registration />,

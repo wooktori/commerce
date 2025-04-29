@@ -50,7 +50,13 @@ export default function ProductDetail() {
           <p>재고 {item.quantity} 개</p>
           <p>카테고리 {item.category}</p>
           <p>설명 {item.description}</p>
-          <Button>수정</Button>
+          <Button
+            onClick={() => {
+              navigate("edit");
+            }}
+          >
+            수정
+          </Button>
           <Button className="ml-10" onClick={handleDelete}>
             삭제
           </Button>
