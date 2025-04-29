@@ -25,9 +25,10 @@ const formSchema = z.object({
   quantity: z.coerce.number(),
   description: z.string(),
   category: z.string(),
-  image: z
+  images: z
     .instanceof(FileList)
-    .refine((files) => files?.length > 0, "이미지는 필수입니다"),
+    .refine((files) => files?.length > 0, "최소 1개 이상의 이미지가 필요합니다")
+    .refine((files) => files?.length <= 5, "최대 5개까지 업로드 가능합니다"),
 });
 
 export default function Registration() {
@@ -41,22 +42,28 @@ export default function Registration() {
       quantity: 0,
       description: "",
       category: "",
-      image: undefined,
+      images: undefined,
     },
   });
   const registrationMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
-      const { name, price, quantity, description, category, image } = data;
+      const { name, price, quantity, description, category, images } = data;
       const userId = user.userData!.id;
       const productId = uuidv4();
 
       // 1. 이미지 업로드
-      const file = image[0];
-      const storageRef = ref(storage, `products/${productId}/${file.name}`);
-      await uploadBytes(storageRef, file);
-      const imageUrl = await getDownloadURL(storageRef);
+      const imageUrls = await Promise.all(
+        Array.from(images).map(async (file, index) => {
+          const storageRef = ref(
+            storage,
+            `products/${productId}/${index}_${file.name}`
+          );
+          await uploadBytes(storageRef, file);
+          return await getDownloadURL(storageRef);
+        })
+      );
 
-      // 2. Firestore에 데이터 저장 (이미지 URL 포함)
+      // 2. Firestore에 데이터 저장
       await setDoc(doc(db, "products", productId), {
         userId,
         name,
@@ -64,7 +71,7 @@ export default function Registration() {
         quantity,
         description,
         category,
-        imageUrl, // 이미지 URL 저장
+        imageUrls,
         createdAt: new Date().toISOString(),
       });
 
@@ -96,7 +103,7 @@ export default function Registration() {
         >
           <div className="md:col-span-1">
             <FormField
-              name="image"
+              name="images"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
@@ -105,6 +112,7 @@ export default function Registration() {
                     <div className="flex items-center justify-center w-full h-80 border-2 border-dashed rounded-lg relative">
                       <Input
                         placeholder="제품이미지"
+                        multiple
                         type="file"
                         className="absolute opacity-0 w-full h-full cursor-pointer"
                         onChange={(e) => {
@@ -112,13 +120,29 @@ export default function Registration() {
                         }}
                       />
                       {field.value?.length > 0 ? (
-                        <span className="text-sm text-green-600">
-                          선택된 파일: {field.value[0].name}
-                        </span>
+                        <div className="grid grid-cols-2 gap-2 w-full">
+                          {Array.from(field.value).map((file, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2 p-2 border rounded"
+                            >
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`미리보기 ${index + 1}`}
+                                className="h-16 w-16 object-cover rounded"
+                              />
+                              <span className="text-sm truncate">
+                                {file.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       ) : (
-                        <span className="text-gray-500">
-                          이미지를 드래그하거나 클릭해주세요
-                        </span>
+                        <div className="text-center">
+                          <span className="text-gray-500">
+                            이미지를 드래그하거나 클릭해주세요 (최대 5개)
+                          </span>
+                        </div>
                       )}
                     </div>
                   </FormControl>

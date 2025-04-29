@@ -1,134 +1,62 @@
 import { Button } from "@/components/ui/button";
+import { db } from "@/firebase";
+import { useAuth } from "@/hooks/useAuth";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
+interface Product {
+  productId: string;
+  sellerId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  description: string;
+  category: string;
+  imageUrl: string;
+}
+
 export default function Seller() {
-  // interface Product {
-  //   productId: string;
-  //   sellerId: string;
-  //   productName: string;
-  //   productPrice: number;
-  //   productQuantity: number;
-  //   productDescription: string;
-  //   productCategory: string;
-  //   productImage: string[];
-  // }
-
-  const items = [
-    {
-      productId: 1,
-      sellerId: "string",
-      productName: "item1",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "하의",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 2,
-      sellerId: "string",
-      productName: "item2",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "상의",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 3,
-      sellerId: "string",
-      productName: "item3",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "모자",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 4,
-      sellerId: "string",
-      productName: "item1",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "하의",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 5,
-      sellerId: "string",
-      productName: "item2",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "상의",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 6,
-      sellerId: "string",
-      productName: "item3",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "모자",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 7,
-      sellerId: "string",
-      productName: "item1",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "하의",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 8,
-      sellerId: "string",
-      productName: "item2",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "상의",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-    {
-      productId: 9,
-      sellerId: "string",
-      productName: "item3",
-      productPrice: 123,
-      productQuantity: 2,
-      productDescription: "상품",
-      productCategory: "모자",
-      productImage: [
-        "https://images.unsplash.com/photo-1508138221679-760a23a2285b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8JUVDJTlFJTg0JUVDJTlEJTk4JUVDJTlEJTk4fGVufDB8fDB8fHww",
-      ],
-    },
-  ];
-
   const navigate = useNavigate();
+  const user = useAuth();
+  const [items, setItems] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      if (!user?.userData?.id) return;
+
+      try {
+        const q = query(
+          collection(db, "products"),
+          where("userId", "==", user.userData.id)
+        );
+        const querySnapshot = await getDocs(q);
+
+        const products = querySnapshot.docs.map((doc) => ({
+          productId: doc.id,
+          ...doc.data(),
+        })) as Product[];
+
+        setItems(products);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [user?.userData?.id]);
+
+  if (loading) {
+    return <div className="mx-10 text-center">로딩 중...</div>;
+  }
+
   const handleAdd = () => {
     navigate("/registration");
   };
-
+  console.log(items);
   return (
     <div className="mx-10">
       <h1 className="text-sm font-bold text-center">판매자 페이지</h1>
@@ -145,16 +73,12 @@ export default function Seller() {
           >
             <div
               className="w-full h-60 bg-cover bg-center"
-              style={{ backgroundImage: `url(${item.productImage[0]})` }}
+              style={{ backgroundImage: `url(${item.imageUrl})` }}
             ></div>
-            <div className="text-center">{item.productName}</div>
+            <div className="text-center">{item.name}</div>
           </Link>
         ))}
       </div>
     </div>
   );
 }
-
-// 4/25 할 것
-// - 회원가입/로그인 블로그 작성
-// - 판매자 페이지 완성 (1주차에 해당하는거)
