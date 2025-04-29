@@ -13,7 +13,7 @@ interface Product {
   quantity: number;
   description: string;
   category: string;
-  imageUrl: string;
+  imageUrls: string[];
 }
 
 export default function Seller() {
@@ -73,7 +73,7 @@ export default function Seller() {
           >
             <div
               className="w-full h-60 bg-cover bg-center"
-              style={{ backgroundImage: `url(${item.imageUrl})` }}
+              style={{ backgroundImage: `url(${item.imageUrls[0]})` }}
             ></div>
             <div className="text-center">{item.name}</div>
           </Link>
