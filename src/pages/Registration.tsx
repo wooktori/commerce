@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { LoadingSpinner } from "@/components/Loading";
 
 const formSchema = z.object({
   name: z.string().min(1, "이름은 필수입니다."),
@@ -90,6 +91,11 @@ export default function Registration() {
   };
   return (
     <div className="mx-10">
+      {registrationMutation.isPending && <LoadingSpinner />}
+      {registrationMutation.isPending && (
+        <div className="fixed inset-0 bg-black/10 z-40 pointer-events-none"></div>
+      )}
+
       <div className="flex items-center justify-center relative mb-10">
         <Link to="/seller" className="absolute left-0">
           &larr;

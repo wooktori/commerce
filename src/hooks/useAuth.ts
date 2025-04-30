@@ -80,6 +80,7 @@ export function useAuth() {
           if (!userDoc.exists()) {
             // 소셜 로그인 사용자에 대한 기본 문서 생성
             await setDoc(userRef, {
+              id: firebaseUser.uid,
               email: firebaseUser.email,
               nickname:
                 firebaseUser.displayName ||

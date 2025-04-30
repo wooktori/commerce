@@ -1,3 +1,4 @@
+import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { db } from "@/firebase";
 import { useAuth } from "@/hooks/useAuth";
@@ -50,7 +51,7 @@ export default function Seller() {
   }, [user?.userData?.id]);
 
   if (loading) {
-    return <div className="mx-10 text-center">로딩 중...</div>;
+    return <LoadingSpinner />;
   }
 
   const handleAdd = () => {
