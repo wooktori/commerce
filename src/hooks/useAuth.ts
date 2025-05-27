@@ -3,12 +3,9 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc, onSnapshot, setDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase";
 import { useEffect } from "react";
-import { useSetRecoilState } from "recoil";
-import { userState } from "@/atoms/userAtom";
 
 export function useAuth() {
   const queryClient = useQueryClient();
-  const setUser = useSetRecoilState(userState);
 
   // 1. Firebase 인증 상태 조회
   const {
@@ -39,12 +36,8 @@ export function useAuth() {
     async queryFn() {
       if (!authUser?.uid) return null;
 
-      //console.log("Firestore 조회 시도:", authUser.uid); // 디버깅 로그
-
       const userDoc = await getDoc(doc(db, "users", authUser.uid));
       const data = userDoc.data();
-
-      //console.log("Firestore 조회 결과:", data); // 디버깅 로그
 
       if (!userDoc.exists()) {
         throw new Error("User document not found");
@@ -59,69 +52,49 @@ export function useAuth() {
     if (!authUser?.uid) return;
 
     const unsubscribe = onSnapshot(doc(db, "users", authUser.uid), (doc) => {
-      //console.log("실시간 업데이트:", doc.data()); // 디버깅 로그
       queryClient.setQueryData(["userData", authUser.uid], doc.data());
     });
 
     return () => unsubscribe();
   }, [authUser?.uid, queryClient]);
 
+  // 4. 새 사용자 문서 생성 로직
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) return;
+
       try {
-        if (firebaseUser) {
-          const token = await firebaseUser.getIdToken();
-          localStorage.setItem("token", token);
+        const userRef = doc(db, "users", firebaseUser.uid);
+        const userDoc = await getDoc(userRef);
 
-          // Firestore에서 사용자 문서 조회 또는 생성
-          const userRef = doc(db, "users", firebaseUser.uid);
-          const userDoc = await getDoc(userRef);
-
-          if (!userDoc.exists()) {
-            // 소셜 로그인 사용자에 대한 기본 문서 생성
-            await setDoc(userRef, {
-              id: firebaseUser.uid,
-              email: firebaseUser.email,
-              nickname:
-                firebaseUser.displayName ||
-                `user_${firebaseUser.uid.slice(0, 8)}`,
-              isSeller: false,
-              createdAt: new Date(),
-              provider: firebaseUser.providerData[0]?.providerId || "unknown",
-            });
-          }
-
-          // 최종 사용자 상태 업데이트
-          const finalUserDoc = await getDoc(userRef);
-          setUser({
+        if (!userDoc.exists()) {
+          await setDoc(userRef, {
             id: firebaseUser.uid,
-            email: finalUserDoc.data()?.email || firebaseUser.email || "",
+            email: firebaseUser.email,
             nickname:
-              finalUserDoc.data()?.nickname ||
               firebaseUser.displayName ||
-              "익명",
-            isSeller: finalUserDoc.data()?.isSeller || false,
+              `user_${firebaseUser.uid.slice(0, 8)}`,
+            isSeller: false,
+            createdAt: new Date(),
+            provider: firebaseUser.providerData[0]?.providerId || "unknown",
           });
-        } else {
-          localStorage.removeItem("token");
-          setUser(null);
         }
       } catch (error) {
-        console.error("인증 상태 오류:", error);
-        localStorage.removeItem("token");
-        setUser(null);
+        console.error("사용자 문서 생성 오류:", error);
       }
     });
 
     return () => unsubscribe();
-  }, [setUser]);
+  }, []);
 
   return {
     user: authUser,
     userData,
     isLoading: authLoading || dataLoading,
     error: authError || dataError,
+    // 필요한 추가 필드
     nickname: userData?.nickname || null,
-    // 다른 필요한 필드들...
+    isSeller: userData?.isSeller || false,
+    email: userData?.email || authUser?.email || null,
   };
 }

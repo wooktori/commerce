@@ -41,17 +41,6 @@ export default function Login() {
       if (!userDoc.exists()) {
         throw new Error("사용자 정보가 없습니다.");
       }
-
-      const token = await userCredential.user.getIdToken();
-
-      localStorage.setItem("token", token);
-
-      setUser({
-        id,
-        email: userDoc.data().email,
-        nickname: userDoc.data().nickname,
-        isSeller: userDoc.data().isSeller,
-      });
     },
     onSuccess: () => navigate("/"),
     onError: (error) => {

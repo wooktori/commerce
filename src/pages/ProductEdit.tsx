@@ -165,7 +165,7 @@ export default function ProductEdit() {
             <FormField
               name="imageUrls"
               control={form.control}
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>제품이미지</FormLabel>
                   <FormControl>
