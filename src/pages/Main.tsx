@@ -38,7 +38,7 @@ export default function Main() {
     <>
       <div className="grid grid-cols-3 gap-4">
         {items.map((item) => (
-          <div>
+          <div key={item.productId}>
             <div
               className="w-full h-60 bg-cover bg-center"
               style={{ backgroundImage: `url(${item.imageUrls[0]})` }}

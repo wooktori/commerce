@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { db, storage } from "@/firebase";
-import { useAuth } from "@/hooks/useAuth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { doc, setDoc } from "firebase/firestore";
@@ -19,6 +18,7 @@ import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { LoadingSpinner } from "@/components/Loading";
+import { getAuthUser } from "@/hooks/user";
 
 const formSchema = z.object({
   name: z.string().min(1, "이름은 필수입니다."),
@@ -33,7 +33,7 @@ const formSchema = z.object({
 });
 
 export default function Registration() {
-  const user = useAuth();
+  const user = getAuthUser();
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +49,7 @@ export default function Registration() {
   const registrationMutation = useMutation({
     mutationFn: async (data: z.infer<typeof formSchema>) => {
       const { name, price, quantity, description, category, images } = data;
-      const userId = user.userData!.id;
+      const userId = user.id;
       const productId = uuidv4();
 
       // 1. 이미지 업로드

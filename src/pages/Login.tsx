@@ -1,4 +1,3 @@
-import { userState } from "@/atoms/userAtom";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -9,12 +8,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { auth, db } from "@/firebase";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
-import { useSetRecoilState } from "recoil";
 import { FcGoogle } from "react-icons/fc";
 import { RiGithubFill, RiKakaoTalkFill } from "react-icons/ri";
 import { githubLogin, googleLogin, kakaoLogin } from "@/lib/socialLogin";
@@ -25,7 +23,7 @@ interface IForm {
 }
 
 export default function Login() {
-  const setUser = useSetRecoilState(userState);
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const form = useForm<IForm>({ defaultValues: { email: "", password: "" } });
   const loginMutation = useMutation({
@@ -42,7 +40,10 @@ export default function Login() {
         throw new Error("사용자 정보가 없습니다.");
       }
     },
-    onSuccess: () => navigate("/"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      navigate("/");
+    },
     onError: (error) => {
       alert("로그인에 실패하였습니다.");
       console.error(error);
@@ -50,7 +51,7 @@ export default function Login() {
   });
 
   const { mutate: googleMutate } = useMutation({
-    mutationFn: () => googleLogin({ setUser, navigate }),
+    mutationFn: () => googleLogin({ navigate, queryClient }),
     onError: (error) => {
       alert("구글 로그인에 실패하였습니다.");
       console.error(error);
@@ -58,7 +59,7 @@ export default function Login() {
   });
 
   const { mutate: githubMutate } = useMutation({
-    mutationFn: () => githubLogin({ setUser, navigate }),
+    mutationFn: () => githubLogin({ navigate, queryClient }),
     onError: (error) => {
       alert("깃허브 로그인에 실패하였습니다.");
       console.error(error);

@@ -32,19 +32,21 @@ export function useAuth() {
     error: dataError,
   } = useQuery({
     queryKey: ["userData", authUser?.uid],
-    enabled: !!authUser?.uid, // 사용자가 있을 때만 실행
-    async queryFn() {
-      if (!authUser?.uid) return null;
+    enabled: !!authUser?.uid,
+    queryFn: () => {
+      if (!authUser || !authUser.uid) return null;
 
-      const userDoc = await getDoc(doc(db, "users", authUser.uid));
-      const data = userDoc.data();
-
-      if (!userDoc.exists()) {
-        throw new Error("User document not found");
-      }
-      return data;
+      return new Promise((resolve) => {
+        const unsubscribe = onSnapshot(
+          doc(db, "users", authUser.uid),
+          (doc) => {
+            resolve(doc.data());
+            unsubscribe(); // 초기 응답 후 해제 (반복 호출 방지)
+          }
+        );
+      });
     },
-    staleTime: 5 * 60 * 1000, // 5분 캐시
+    staleTime: 0,
   });
 
   // 3. 실시간 업데이트 설정
@@ -88,13 +90,9 @@ export function useAuth() {
   }, []);
 
   return {
-    user: authUser,
+    authUser,
     userData,
     isLoading: authLoading || dataLoading,
     error: authError || dataError,
-    // 필요한 추가 필드
-    nickname: userData?.nickname || null,
-    isSeller: userData?.isSeller || false,
-    email: userData?.email || authUser?.email || null,
   };
 }

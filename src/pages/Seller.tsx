@@ -1,10 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { db } from "@/firebase";
-import { useAuth } from "@/hooks/useAuth";
+import { getAuthUser, User } from "@/hooks/user";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router"; // ✅ react-router-dom 사용
 
 interface Product {
   productId: string;
@@ -17,47 +17,41 @@ interface Product {
   imageUrls: string[];
 }
 
+async function getSellerProducts(userId: string): Promise<Product[]> {
+  const q = query(collection(db, "products"), where("userId", "==", userId));
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((doc) => ({
+    productId: doc.id,
+    ...doc.data(),
+  })) as Product[];
+}
+
 export default function Seller() {
   const navigate = useNavigate();
-  const user = useAuth();
-  const [items, setItems] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      if (!user?.userData?.id) return;
+  // 1. 유저 정보 불러오기
+  const { data: user, isLoading: userLoading } = useQuery<User | null>({
+    queryKey: ["user"],
+    queryFn: getAuthUser,
+  });
 
-      try {
-        const q = query(
-          collection(db, "products"),
-          where("userId", "==", user.userData.id)
-        );
-        const querySnapshot = await getDocs(q);
+  // 2. 상품 정보 불러오기 (user가 있을 때만)
+  const {
+    data: items,
+    isLoading: itemsLoading,
+    isError,
+  } = useQuery<Product[]>({
+    queryKey: ["products", user?.id],
+    queryFn: () => getSellerProducts(user!.id),
+    enabled: !!user?.id, // ✅ user가 있을 때만 실행
+  });
 
-        const products = querySnapshot.docs.map((doc) => ({
-          productId: doc.id,
-          ...doc.data(),
-        })) as Product[];
+  const handleAdd = () => navigate("/registration");
 
-        setItems(products);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (userLoading || itemsLoading) return <LoadingSpinner />;
+  if (isError) return <div>상품을 불러오는 중 오류가 발생했습니다.</div>;
 
-    fetchProducts();
-  }, [user?.userData?.id]);
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  const handleAdd = () => {
-    navigate("/registration");
-  };
-  console.log(items);
   return (
     <div className="mx-10">
       <h1 className="text-sm font-bold text-center">판매자 페이지</h1>
@@ -65,7 +59,7 @@ export default function Seller() {
         <Button onClick={handleAdd}>상품 등록</Button>
       </div>
       <div className="grid grid-cols-3 gap-4">
-        {items.map((item) => (
+        {items?.map((item) => (
           <Link
             to={`/seller/${item.productId}`}
             state={{ item }}
